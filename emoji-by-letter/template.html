@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emoji by Letter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<style>
+:root {
+  --paper: #eef1f4; --sheet: #f8fafb; --rule: #d5dde4; --ink: #18212b; --muted: #5b6875;
+  --accent: #2357c9; --new: #c4203f;
+  --f-display: "Silkscreen", "Courier New", monospace;
+  --f-body: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --f-data: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --f-emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #11161c; --sheet: #182029; --rule: #263240; --ink: #e5ebf1; --muted: #93a2b2;
+  --accent: #7aa2ff; --new: #ff6b86; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --paper: #11161c; --sheet: #182029; --rule: #263240; --ink: #e5ebf1; --muted: #93a2b2;
+  --accent: #7aa2ff; --new: #ff6b86; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: 120px; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--f-body); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+header { padding: 32px 0 16px; }
+h1 { font: 400 clamp(28px, 6vw, 48px)/1.1 var(--f-display); margin: 0 0 8px; letter-spacing: .02em; }
+.lede { color: var(--muted); max-width: 70ch; margin: 0; }
+.lede b { color: var(--ink); }
+
+.bar { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.bar .wrap { padding-top: 10px; padding-bottom: 10px; display: grid; gap: 8px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.controls input[type=search] { flex: 1 1 220px; min-width: 0; font: inherit; padding: 6px 10px; border: 1px solid var(--rule);
+  border-radius: 6px; background: var(--sheet); color: var(--ink); }
+.controls label { font-size: 14px; color: var(--muted); display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.shown { font: 13px var(--f-data); color: var(--muted); margin-left: auto; }
+nav.letters { display: flex; flex-wrap: wrap; gap: 3px; }
+nav.letters a { font: 14px/1 var(--f-display); text-decoration: none; color: var(--ink); background: var(--sheet);
+  border: 1px solid var(--rule); border-radius: 4px; padding: 6px 0; width: 36px; text-align: center; }
+nav.letters a small { display: block; font: 10px/1.4 var(--f-data); color: var(--muted); margin-top: 3px; }
+nav.letters a:hover { border-color: var(--accent); color: var(--accent); }
+nav.letters a.empty { opacity: .35; pointer-events: none; }
+
+section.letter { padding: 24px 0 8px; border-bottom: 1px solid var(--rule); }
+section.letter[hidden] { display: none; }
+section.letter h2 { display: flex; align-items: baseline; gap: 12px; margin: 0 0 12px; }
+section.letter h2 .L { font: 400 40px/1 var(--f-display); }
+section.letter h2 .n { font: 13px var(--f-data); color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 6px; }
+.tile { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 6px 6px; text-align: center;
+  position: relative; cursor: copy; font: inherit; color: inherit; }
+.tile:hover { border-color: var(--accent); }
+.tile .e { font: 34px/1.15 var(--f-emoji); display: block; }
+.tile .nm { font-size: 12px; line-height: 1.25; color: var(--muted); display: block; margin-top: 4px; overflow-wrap: anywhere; }
+.tile .v { position: absolute; top: 3px; right: 4px; font: 9px var(--f-data); color: var(--new); }
+.tile.copied { border-color: var(--accent); }
+.tile.copied .nm::after { content: " · copied"; color: var(--accent); }
+footer { color: var(--muted); font-size: 13px; padding: 24px 0 48px; }
+footer a { color: var(--accent); }
+@media (max-width: 520px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
+  .tile .e { font-size: 28px; }
+  nav.letters a { width: 30px; font-size: 12px; }
+  nav.letters a small { display: none; }
+  html { scroll-padding-top: 160px; }
+}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>Emoji by letter</h1>
+  <p class="lede" id="lede"></p>
+</header>
+<div class="bar"><div class="wrap">
+  <div class="controls">
+    <input type="search" id="q" placeholder="Filter by name (e.g. cat, flag, heart)" aria-label="Filter emoji by name">
+    <label><input type="checkbox" id="tones"> Include skin-tone variants</label>
+    <span class="shown" id="shown"></span>
+  </div>
+  <nav class="letters" id="nav" aria-label="Jump to letter"></nav>
+</div></div>
+<main class="wrap" id="main"></main>
+<footer class="wrap" id="foot"></footer>
+<script>
+const DATA = /*DATA*/null;   // [emoji, name, emojiVersion, isSkinToneVariant]
+const META = /*META*/null;
+const LETTERS = "abcdefghijklmnopqrstuvwxyz#".split("");
+const newest = Math.max(...DATA.map(d => parseFloat(d[2])));
+
+document.getElementById("lede").innerHTML =
+  `Every fully-qualified emoji in Unicode Emoji ${META.version} (<b>${META.base.toLocaleString()}</b> emoji, ` +
+  `<b>${META.total.toLocaleString()}</b> counting skin-tone variants), filed under the first letter of its official ` +
+  `CLDR short name and sorted alphabetically within each letter. Names starting with a digit are under #. ` +
+  `Click any emoji to copy it. A small <span style="color:var(--new);font-family:var(--f-data)">E${newest}</span> ` +
+  `tag marks the newest emoji, which many systems can't draw yet.`;
+document.getElementById("foot").innerHTML =
+  `Source: Unicode <a href="https://www.unicode.org/Public/emoji/latest/emoji-test.txt">emoji-test.txt</a>, ` +
+  `version ${META.version}, dated ${META.date}. Generated by build.py.`;
+
+const byLetter = Object.fromEntries(LETTERS.map(l => [l, []]));
+for (const d of DATA) {
+  const f = d[1].normalize("NFKD")[0].toLowerCase();
+  byLetter[f >= "a" && f <= "z" ? f : "#"].push(d);
+}
+
+const main = document.getElementById("main"), nav = document.getElementById("nav");
+const sections = {};
+for (const l of LETTERS) {
+  const sec = document.createElement("section");
+  sec.className = "letter"; sec.id = l === "#" ? "num" : l;
+  sec.innerHTML = `<h2><span class="L">${l.toUpperCase()}</span><span class="n"></span></h2><div class="grid"></div>`;
+  main.appendChild(sec);
+  const a = document.createElement("a");
+  a.href = "#" + sec.id; a.innerHTML = `${l.toUpperCase()}<small></small>`;
+  nav.appendChild(a);
+  sections[l] = { sec, grid: sec.querySelector(".grid"), n: sec.querySelector(".n"), a };
+}
+
+function esc(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+
+const q = document.getElementById("q"), tones = document.getElementById("tones");
+try { tones.checked = localStorage.getItem("ebl-tones") === "1"; } catch (e) {}
+
+function render() {
+  const term = q.value.trim().toLowerCase(), withTones = tones.checked;
+  let shown = 0;
+  for (const l of LETTERS) {
+    const s = sections[l];
+    const items = byLetter[l].filter(d => (withTones || !d[3]) && (!term || d[1].toLowerCase().includes(term)));
+    shown += items.length;
+    s.grid.innerHTML = items.map(d =>
+      `<button class="tile" title="${esc(d[1])} (E${d[2]})" data-e="${d[0]}"><span class="e">${d[0]}</span>` +
+      `<span class="nm">${esc(d[1])}</span>${parseFloat(d[2]) === newest ? `<span class="v">E${d[2]}</span>` : ""}</button>`
+    ).join("");
+    s.n.textContent = `${items.length.toLocaleString()} emoji`;
+    s.sec.hidden = items.length === 0;
+    s.a.querySelector("small").textContent = items.length;
+    s.a.classList.toggle("empty", items.length === 0);
+  }
+  document.getElementById("shown").textContent = `${shown.toLocaleString()} shown`;
+}
+let t; q.addEventListener("input", () => { clearTimeout(t); t = setTimeout(render, 120); });
+tones.addEventListener("change", () => { try { localStorage.setItem("ebl-tones", tones.checked ? "1" : "0"); } catch (e) {} render(); });
+main.addEventListener("click", ev => {
+  const b = ev.target.closest(".tile"); if (!b) return;
+  navigator.clipboard?.writeText(b.dataset.e).then(() => {
+    b.classList.add("copied"); setTimeout(() => b.classList.remove("copied"), 900);
+  }).catch(() => {});
+});
+render();
+</script>
+</body>
+</html>
